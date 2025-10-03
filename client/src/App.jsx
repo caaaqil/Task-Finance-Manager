@@ -37,13 +37,13 @@ function App() {
               className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
               onClick={() => setActiveTab('dashboard')}
             >
-              📅 Schedule
+              🏠 Today's Overview
             </button>
             <button
               className={`nav-tab ${activeTab === 'tasks' ? 'active' : ''}`}
               onClick={() => setActiveTab('tasks')}
             >
-              📋 Tasks
+              📋 All Tasks
             </button>
             <button
               className={`nav-tab ${activeTab === 'finance' ? 'active' : ''}`}

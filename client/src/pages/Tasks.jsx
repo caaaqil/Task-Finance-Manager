@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import TaskList from '../components/TaskList';
 import TaskForm from '../components/TaskForm';
-import DailySummary from '../components/DailySummary';
-import Reports from '../components/Reports';
 
 const Tasks = () => {
   const [showForm, setShowForm] = useState(false);
@@ -20,8 +18,6 @@ const Tasks = () => {
       </div>
       
       {showForm && <TaskForm onClose={() => setShowForm(false)} />}
-      <DailySummary />
-      <Reports />
       <TaskList />
     </div>
   );

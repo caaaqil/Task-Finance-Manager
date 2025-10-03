@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
-import WeeklySchedule from './WeeklySchedule';
+import DailySummary from './DailySummary';
 
 const Dashboard = () => {
-  const { tasks } = useTasks();
+  const { tasks, updateTask } = useTasks();
 
   // Get today's tasks
   const today = new Date().toISOString().split('T')[0];
-  const todaysTasks = tasks.filter(task => task.date.split('T')[0] === today);
+  const todaysTasks = tasks.filter(task => {
+    const taskDate = new Date(task.date).toISOString().split('T')[0];
+    return taskDate === today;
+  });
+
+  const handleStatusChange = async (taskId, currentStatus) => {
+    const newStatus = currentStatus === 'pending' ? 'completed' : 'pending';
+    try {
+      await updateTask(taskId, { status: newStatus });
+    } catch (error) {
+      console.error('Error updating task status:', error);
+    }
+  };
 
   return (
     <div className="container">
-      {/* Weekly Schedule Section */}
-      <WeeklySchedule />
+      <h2>Today's Overview</h2>
+      
+      {/* Daily Summary */}
+      <DailySummary />
       
       {/* Today's Tasks Summary */}
       <div className="card" style={{ marginTop: '20px' }}>
@@ -21,28 +35,28 @@ const Dashboard = () => {
           <div className="summary-card">
             <h3>Total Tasks</h3>
             <div className="amount">{todaysTasks.length}</div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', color: '#64748B' }}>
               Scheduled for today
             </div>
           </div>
           <div className="summary-card">
             <h3>Completed</h3>
             <div className="amount positive">{todaysTasks.filter(task => task.status === 'completed').length}</div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', color: '#64748B' }}>
               Tasks finished
             </div>
           </div>
           <div className="summary-card">
             <h3>Classes</h3>
             <div className="amount">{todaysTasks.filter(task => task.type === 'class').length}</div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', color: '#64748B' }}>
               Lectures today
             </div>
           </div>
           <div className="summary-card">
             <h3>Meetings</h3>
             <div className="amount">{todaysTasks.filter(task => task.type === 'meeting').length}</div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', color: '#64748B' }}>
               Scheduled meetings
             </div>
           </div>
@@ -64,13 +78,13 @@ const Dashboard = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
-                    <h4 style={{ margin: 0 }}>{task.title}</h4>
+                    <h4 style={{ margin: 0 }}>{task.lectureDetails?.className || task.title}</h4>
                     <span style={{ 
-                      background: task.type === 'class' ? '#007bff' : 
-                                 task.type === 'meeting' ? '#28a745' :
-                                 task.type === 'office_hours' ? '#ffc107' :
-                                 task.type === 'preparation' ? '#17a2b8' :
-                                 task.type === 'research' ? '#6f42c1' : '#6c757d',
+                      background: task.type === 'class' ? '#7C3AED' : 
+                                 task.type === 'meeting' ? '#10B981' :
+                                 task.type === 'office_hours' ? '#64748B' :
+                                 task.type === 'preparation' ? '#7C3AED' :
+                                 task.type === 'research' ? '#64748B' : '#64748B',
                       color: 'white',
                       padding: '2px 8px',
                       borderRadius: '12px',
@@ -81,11 +95,16 @@ const Dashboard = () => {
                     </span>
                   </div>
                   
-                  <div style={{ fontSize: '14px', color: '#888' }}>
+                  <div style={{ fontSize: '14px', color: '#64748B' }}>
                     <span style={{ marginRight: '15px' }}>
                       <strong>🕐 {task.startTime} - {task.endTime}</strong>
                     </span>
-                    {task.location && (
+                    {task.lectureDetails?.hallNumber && (
+                      <span style={{ marginRight: '15px' }}>
+                        <strong>🏛️ {task.lectureDetails.hallNumber}</strong>
+                      </span>
+                    )}
+                    {task.location && !task.lectureDetails?.hallNumber && (
                       <span>
                         <strong>📍 {task.location}</strong>
                       </span>
@@ -93,15 +112,13 @@ const Dashboard = () => {
                   </div>
                 </div>
                 
-                <span style={{
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  background: task.status === 'completed' ? '#28a745' : '#ffc107',
-                  color: 'white'
-                }}>
-                  {task.status}
-                </span>
+                <button
+                  className={`btn ${task.status === 'completed' ? 'btn-success' : ''}`}
+                  onClick={() => handleStatusChange(task._id, task.status)}
+                  style={{ fontSize: '12px', padding: '5px 10px' }}
+                >
+                  {task.status === 'completed' ? '✓ Done' : 'Mark Done'}
+                </button>
               </div>
             </div>
           ))
